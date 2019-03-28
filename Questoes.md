@@ -23,15 +23,16 @@
 
 5.	GroupByKey é menos eficiente que reduceByKey em grandes dataset. Por quê?
 
->
+> No `ReduceByKey()`, todos os pares com as mesmas chaves são agrupados ainda em suas respectivas partições antes de passarem pela etapa de shuffling. Já no `GroupByKey()`, todos os pares são enviados individualmente pela rede na etapa de shuffling, causando tráfico desnecessário e ocupando mais espaço na memória.
 
 6.	Explique o que o código Scala abaixo faz.
 
 ```
 val textFile = sc.textFile("hdfs://...")
-val counts = textFile.flatMap(line => line.split("
-"))
+val counts = textFile.flatMap(line => line.split(" "))
 	.map(word => (word, 1))
 	.reduceByKey(_ + _)
 counts.saveAsTextFile("hdfs://...")
 ```
+
+> O código carrega um arquivo com algum texto na variável textFile, cria um array separando o texto por palavras e faz uma contagem de quantas vezes cada palavra aparece no texto. No final, as contagens são exportadas para um novo arquivo texto.
