@@ -39,23 +39,23 @@ val parsedRDD = parsedRDD_ini.filter(_.isRight).map(_.right.get)
 
 
 // 1 - Número de hosts únicos
-val hostCount = parsedRDD.map(_.host).distinct().count() 	//Contagem distinta do campo "host"
+val hostCount = parsedRDD.map(_.host).distinct().count() 		//Contagem distinta do campo "host"
 println(s"Número de hosts únicos: ${hostCount}")
 
 
 // 2 - Total de erros 404
-val errorRDD = parsedRDD.filter(_.codigo == "404") 				//Filtra linhas com o campo "codigo" igual a 404
-val errorCount = errorRDD.count()								//Realiza a contagem de linhas
+val errorRDD = parsedRDD.filter(_.codigo == "404") 			//Filtra linhas com o campo "codigo" igual a 404
+val errorCount = errorRDD.count()					//Realiza a contagem de linhas
 println(s"Total de erros 404: ${errorCount}")
 
 
 // 3 - Os 5 URL's que mais causaram erro 404
-val reqsRDD = errorRDD.map(_.req)								//Retorna linhas contendo apaenas o campo com a requisição completa
-val urlRDD = reqsRDD.map(_.split(" ")(1))						//Realiza o split da linha separando por espaços	
-val urlCount =urlRDD.map(url => (url, 1))						//Retorna quantidade de vezes que cada URL aparece
+val reqsRDD = errorRDD.map(_.req)					//Retorna linhas contendo apaenas o campo com a requisição completa
+val urlRDD = reqsRDD.map(_.split(" ")(1))				//Realiza o split da linha separando por espaços	
+val urlCount =urlRDD.map(url => (url, 1))				//Retorna quantidade de vezes que cada URL aparece
     .reduceByKey(_ + _)
 
-val topURLs = urlCount.sortBy(_._2, false)						//Retorna as 5 primeiras URLs, ordenando de forma decrescente
+val topURLs = urlCount.sortBy(_._2, false)				//Retorna as 5 primeiras URLs, ordenando de forma decrescente
     .take(5)
 
 topURLs.foreach { case (k, v) => 
@@ -64,12 +64,12 @@ topURLs.foreach { case (k, v) =>
 
 
 // 4 - Quantidade de erros 404 por dia
-val daysRDD = errorRDD.map(_.timestamp.slice(0, 11))            //Quantidade de erros por dia
+val daysRDD = errorRDD.map(_.timestamp.slice(0, 11))            	//Quantidade de erros por dia
   .map((_, 1))
   .reduceByKey(_ + _)
 
-val daysCount = daysRDD.count()									//Contagem de dias
-val mediaErros = errorCount/daysCount							//Média de erros por dia
+val daysCount = daysRDD.count()						//Contagem de dias
+val mediaErros = errorCount/daysCount					//Média de erros por dia
 
 println(s"Média de erros por dia: ${mediaErros}")
 daysRDD.collect().foreach(println)
